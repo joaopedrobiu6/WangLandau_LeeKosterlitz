@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
 class Potts:
     """Class for simulating a Potts model and Wang-Landau method for DOS."""
 
@@ -60,55 +59,44 @@ class Potts:
         # Initialize the density of states and histogram
         E_min, E_max = self.energy_limits(self.L, self.J)
         energy_bins = np.linspace(E_min, E_max, -E_min+1)
-        energy_bins = [-18, -14, -11, -7, -5, -4, -1, 0]
 
         g = {E: 1.0 for E in energy_bins}
         hist = {E: 0 for E in energy_bins}
 
         f = np.e
-
         while f-1 > 1e-4:
             for ii in range(N_sweeps):
-                    current_energy = self.energy(self.lattice)
-                    # choose a site at random and propose a new state
-                    x, y = np.random.randint(0, self.L), np.random.randint(0, self.L)
-                    s0 = self.lattice[x, y]
-                    
-                    s1 = np.random.randint(1, self.q)
-                    self.lattice[x, y] = s1
-                    new_energy = self.energy(self.lattice)
+                current_energy = self.energy(self.lattice)
+                # choose a site at random and propose a new state
+                x, y = np.random.randint(0, self.L), np.random.randint(0, self.L)
+                s0 = self.lattice[x, y]
+                
+                s1 = np.random.randint(1, self.q)
+                self.lattice[x, y] = s1
+                new_energy = self.energy(self.lattice)
 
-                    if (np.random.rand() < min(1, g[int(current_energy)]/g[int(new_energy)])):
-                        g[int(new_energy)] *= f
-                        hist[int(new_energy)] += 1
-                    else:
-                        self.lattice[x, y] = s0
-                        g[int(current_energy)] *= f
-                        hist[int(current_energy)] += 1
-
-                    if ii % 1000 == 0:
-                        isFlat, flatness = self.isFlat(hist, f)
-                        if flatness > 0:
-                            print(flatness)
+                if (np.random.rand() < min(1, g[int(current_energy)]/g[int(new_energy)])):
+                    g[int(new_energy)] *= f
+                    hist[int(new_energy)] += 1
+                else:
+                    self.lattice[x, y] = s0
+                    g[int(current_energy)] *= f
+                    hist[int(current_energy)] += 1
+                if ii % 50 == 0:
+                    isFlat, flatness = self.isFlat(hist, f)
+                 
+                    if isFlat:
+                        f = np.sqrt(f)
+                        hist = {E: 0 for E in energy_bins}
                         
-                        if isFlat:
-                            print(("Is flat? Yes!"))
-                            f = np.sqrt(f)
-                            hist = {E: 0 for E in energy_bins}
-                            print(f"Flat histogram at sweep {ii}")
-                            print(f"New f = {f}")
-                        else:
-                            print("Is flat? No!")
-
-            print(f"Finished sweep {ii} with f = {f}")
-        print(f"Max sweeps reached")
-        return self.lattice, g, hist
+        g_x = np.array(list(g.keys()))
+        g_y = np.array(list(g.values()))
+        return g_x, g_y
 
 if __name__ == "__main__":
-    potts = Potts(T = 1, L = 3, q = 2)
-    lattice, g, hist = potts.WangLandau(100)
-    print(f"Lattice:\n{lattice}")
-    print(f"Energy levels: {g}")
-    print(f"Histogram: {hist}")
-    plt.plot(list(g.keys()), list(g.values()))
+    P = Potts(T=1, L=3, q=8)
+    g_x, g_y = P.WangLandau(1000)
+
+    plt.plot(g_x, g_y/np.max(g_y), label="Density of states")
+    plt.legend()
     plt.show()
