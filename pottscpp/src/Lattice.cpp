@@ -43,7 +43,7 @@ double PottsLattice::Potts_Energy()
 std::pair<float, float> PottsLattice::Energy_Limit()
 {
     float E_min = -2 * L * L * J;
-    float E_max = 0;
+    float E_max = 2* L * L * J;
     return std::make_pair(E_min, E_max);
 }
 

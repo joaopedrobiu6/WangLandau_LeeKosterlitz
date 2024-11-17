@@ -36,7 +36,7 @@ std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q)
     std::map<int, double> g; // Density of states g(E)
     std::map<int, int> hist; // Histogram H(E)
 
-    for (int E = E_min; E <= E_max; E += 1)
+    for (int E = E_min; E <= E_max; E += 8)
     { // Using increments of 2 for energy bins
         g[E] = 1.0;
         hist[E] = 0;
@@ -45,7 +45,7 @@ std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q)
     double f = std::exp(1.0); // Factor to multiply g(E) by
     while (f - 1 > 1e-8)
     {   
-        #pragma omp parallel
+        #pragma omp parallel for 
         for (int i = 0; i < MC_N; i++)
         {
             std::cout << "f: " << f << std::endl;
@@ -109,7 +109,7 @@ std::map<int, double> WangLandauIsing(IsingLattice lat, int MC_N)
     double f = std::exp(1.0); // Factor to multiply g(E) by
     while (f - 1 > 1e-8)
     {   
-        #pragma omp parallel
+        #pragma omp parallel for
         for (int i = 0; i < MC_N; i++)
         {
             //print f with 10 decimal places

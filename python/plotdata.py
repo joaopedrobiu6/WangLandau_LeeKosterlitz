@@ -9,9 +9,8 @@ g = read_data('../pottscpp/g.txt')
 
 # shape if (n, 2)
 # remove all the points where the first column is 1
-g = g[g[:, 1] > 1]
-
-plt.plot(g[:, 0],g[:, 1])
+# g = g[g[:, 1] > 1]
+plt.plot(g[:, 0], np.log(g[:, 1]))
 plt.show()
 
 

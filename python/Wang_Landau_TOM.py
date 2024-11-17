@@ -43,6 +43,8 @@ time.sleep(2)
 # Définir la plage des énergies visitables
 Energies = Energy_list(L,J)
 
+quit()
+
 lng = {E: 0 for E in Energies}  # Densité d'états initialisée à 1.0
 H = {E: 0 for E in Energies}  # Histogramme
 f = np.e  # Facteur de modification
