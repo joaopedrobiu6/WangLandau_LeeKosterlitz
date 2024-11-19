@@ -8,7 +8,7 @@
 #include "Lattice.h"
 
 
-bool isFlat(const std::map<int, int>& hist, double f, double& deviation);
+bool isFlat(const std::map<int, int>& hist, double f);
 
 std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q);
 

@@ -4,14 +4,15 @@
 
 int main()
 {
-    int L = 12;
+    int L = 3;
     float J = 1.0;
-    
-    PottsLattice potts(L, 10, J);
+    int q = 8;
+
+    PottsLattice potts(L, q, J);
     potts.PrintLattice();
     std::cout << "Energy = " << potts.Potts_Energy() << std::endl;
 
-    std::map<int, double> g = WangLandauPotts(potts, 10000000, 10);
+    std::map<int, double> g = WangLandauPotts(potts, 1000, q);
     save_data(g, "g.txt");
     return 0;
 
