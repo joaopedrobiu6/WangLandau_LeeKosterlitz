@@ -28,11 +28,52 @@ bool isFlat(const std::map<int, int> &hist, double h_tol)
     return true;
 }
 
-std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double f_tol, double h_tol, bool NoLog)
+std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double f_tol, double h_tol, bool NoLog, int sampleInterval, int f_factor,  std::string filename)
 {
-    srand(time(NULL));
-    ;
     int L = lat.lattice.size();
+
+    std::cout << "Starting Wang-Landau simulation" << std::endl;
+    std::cout << "MC samples: " << MC_N << std::endl;
+    std::cout << "Lattice size: " << L << std::endl;
+    std::cout << "q: " << q << std::endl;
+    std::cout << "f tolerance: " << f_tol << std::endl;
+    std::cout << "Histogram tolerance: " << h_tol << std::endl;
+    if (NoLog)
+    {
+        std::cout << "Exp form" << std::endl;
+    }
+    else
+    {
+        std::cout << "Log form" << std::endl;
+    }
+    std::cout << "Sample Check Interval: " << sampleInterval << std::endl;
+    std::cout << "f update factor: " << f_factor << std::endl;
+
+    // create output folder if it doesn't exist with name equal to filename without extension
+    std::string folder = filename.substr(0, filename.find_last_of("."));
+    std::string command = "mkdir -p " + folder;
+    system(command.c_str());
+
+    // create info file in output folder with parameters
+    std::ofstream info_file(folder + "/info.txt");
+    info_file << "MC samples: " << MC_N << std::endl;
+    info_file << "Lattice size: " << L << std::endl;
+    info_file << "q: " << q << std::endl;
+    info_file << "f tolerance: " << f_tol << std::endl;
+    info_file << "Histogram tolerance: " << h_tol << std::endl;
+    if (NoLog)
+    {
+        info_file << "Exp form" << std::endl;
+    }
+    else
+    {
+        info_file << "Log form" << std::endl;
+    }
+    info_file << "Sample Check Interval: " << sampleInterval << std::endl;
+    info_file << "f update factor: " << f_factor << std::endl;
+    info_file.close();
+    
+    srand(time(NULL));
     std::pair<float, float> E_limit = lat.Energy_Limit();
     float E_min = E_limit.first;
     float E_max = E_limit.second;
@@ -88,12 +129,12 @@ std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double 
                     hist[Old_E] += 1;
                 }
 
-                if (i % 1000 == 0)
+                if (i % sampleInterval == 0)
                 {
                     std::cout << "f: " << f << std::endl;
                     if (isFlat(hist, h_tol))
                     {
-                        f = std::sqrt(f);
+                        f = pow(f, 1.0 / f_factor);
                         hist.clear();
                         for (int E = E_min; E <= E_max; E += 1)
                         {
@@ -135,12 +176,12 @@ std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double 
                     hist[Old_E] += 1;
                 }
 
-                if (i % 1000 == 0)
+                if (i % sampleInterval == 0)
                 {
                     std::cout << "lnf: " << lnf << std::endl;
                     if (isFlat(hist, h_tol))
                     {
-                        lnf = lnf / 8;
+                        lnf = lnf / f_factor;
                         hist.clear();
                         for (int E = E_min; E <= E_max; E += 1)
                         {
@@ -150,6 +191,8 @@ std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double 
                 }
             }
         }
+        filename = folder + "/" + filename;
+        save_data(lng, filename);
         return lng;
     }
 }
