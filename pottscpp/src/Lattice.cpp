@@ -4,6 +4,7 @@
 
 PottsLattice::PottsLattice(int L, int q, float J) : L(L), q(q), J(J)
 {
+    srand(time(NULL));
     for (int i = 0; i < L; i++)
     {
         std::vector<int> row;
@@ -20,7 +21,6 @@ double PottsLattice::Potts_Energy()
 {
     int L = lattice.size();
     double E = 0.0;
-
 
     // maybe we can iterate over only half of the lattice to avoid double counting
     for (int i = 0; i < L; ++i)

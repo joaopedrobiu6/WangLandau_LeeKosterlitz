@@ -4,23 +4,17 @@
 
 int main()
 {
-    int L = 3;
+    int L = 12;
     float J = 1.0;
-    int q = 8;
+    int q = 10;
+    double f_tol = 1.0e-6, h_tol = 0.80;
+    bool NoLog = false;
 
     PottsLattice potts(L, q, J);
     potts.PrintLattice();
     std::cout << "Energy = " << potts.Potts_Energy() << std::endl;
 
-    std::map<int, double> g = WangLandauPotts(potts, 1000, q);
-    save_data(g, "g.txt");
+    std::map<int, double> lng = WangLandauPotts(potts, 1000, q, f_tol, h_tol, NoLog);
+    save_data(lng, "lng.txt");
     return 0;
-
-//     IsingLattice ising(L, J);
-//     ising.PrintLattice();
-//     std::cout << "Energy = " << ising.Ising_Energy() << std::endl;
-    
-//     auto g = WangLandauIsing(ising, 10000000);
-//     save_data(g, "g.txt");
-//     return 0;
 }

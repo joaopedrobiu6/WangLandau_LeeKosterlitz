@@ -3,13 +3,12 @@
 #include "math.h"
 #include "random"
 #include "map"
-#include "algorithm" 
+#include "algorithm"
 #include "fstream"
 #include "Lattice.h"
 
+bool isFlat(const std::map<int, int> &hist, double h_tol);
 
-bool isFlat(const std::map<int, int>& hist, double f);
+std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double f_tol, double h_tol, bool NoLog = false);
 
-std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q);
-
-std::map<int, double> WangLandauIsing(IsingLattice lat, int MC_N);
+// std::map<int, double> WangLandauIsing(IsingLattice lat, int MC_N);

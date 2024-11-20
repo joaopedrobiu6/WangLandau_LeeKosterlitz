@@ -1,10 +1,10 @@
 #include "WangLandau.h"
 
-bool isFlat(const std::map<int, int>& hist, double f)
+bool isFlat(const std::map<int, int> &hist, double h_tol)
 {
     // Remove entries with zero counts
     std::vector<int> values;
-    for (const auto& entry : hist)
+    for (const auto &entry : hist)
     {
         if (entry.second > 0)
         {
@@ -20,138 +20,136 @@ bool isFlat(const std::map<int, int>& hist, double f)
     double mean = std::accumulate(values.begin(), values.end(), 0.0) / values.size();
     double min_value = *std::min_element(values.begin(), values.end());
 
-    if (min_value < 0.80 * mean)
+    if (min_value < h_tol * mean)
     {
-        std::cout << "it's not flat yet" << std::endl;
+        // std::cout << "it's not flat yet" << std::endl;
         return false;
     }
     return true;
 }
 
-std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q)
+std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double f_tol, double h_tol, bool NoLog)
 {
+    srand(time(NULL));
+    ;
     int L = lat.lattice.size();
     std::pair<float, float> E_limit = lat.Energy_Limit();
     float E_min = E_limit.first;
     float E_max = E_limit.second;
     float num_bins = -E_min + 1;
 
-    std::map<int, double> g; // Density of states g(E)
+    std::map<int, double> lng;
+    std::map<int, double> g;
     std::map<int, int> hist; // Histogram H(E)
 
     for (int E = E_min; E <= E_max; E += 1)
-    { 
-        g[E] = 1.0;
+    {
+        if (NoLog)
+        {
+            g[E] = 1.0;
+        }
+        else
+        {
+            lng[E] = 0.0;
+        }
         hist[E] = 0;
     }
 
-    double f = std::exp(1.0); // Factor to multiply g(E) by
-    while (f - 1 > 1e-5)
-    {   
-        #pragma omp parallel for 
-        for (int i = 0; i < MC_N; i++)
+    double f = std::exp(1.0);
+    double lnf = std::log(f);
+
+    if (NoLog)
+    {
+        while (f - 1 > f_tol)
         {
-            // std::cout << "f: " << f << std::endl;
-            int x = rand() % L;
-            int y = rand() % L;
-            int s0 = lat.lattice[x][y];
-
-            float Old_E = lat.Potts_Energy();
-
-            int s1 = 1 + rand() % q;
-            lat.lattice[x][y] = s1;
-
-            float New_E = lat.Potts_Energy();
-
-            if (rand() / (double)RAND_MAX < std::min(1.0, g[Old_E] / g[New_E]))
+#pragma omp parallel for
+            for (int i = 0; i < MC_N; i++)
             {
-                g[New_E] *= f;
-                hist[New_E] += 1;
-            }
-            else
-            {
-                lat.lattice[x][y] = s0;
-                g[Old_E] *= f;
-                hist[Old_E] += 1;
-            }
-            if(i % 100 == 0)
-            {
-                std::cout << "f: " << f << std::endl;
-                if (isFlat(hist, f))
+                int x = rand() % L;
+                int y = rand() % L;
+                int s0 = lat.lattice[x][y];
+
+                float Old_E = lat.Potts_Energy();
+
+                int s1 = 1 + rand() % q;
+                lat.lattice[x][y] = s1;
+
+                float New_E = lat.Potts_Energy();
+
+                if (rand() / (double)RAND_MAX < std::min(1.0, g[Old_E] / g[New_E]))
                 {
-                    f = std::sqrt(f);
-                    hist.clear();
-                    for (int E = E_min; E <= E_max; E += 1)
+                    lng[New_E] += lnf;
+                    hist[New_E] += 1;
+                }
+                else
+                {
+                    lat.lattice[x][y] = s0;
+                    g[Old_E] *= f;
+                    hist[Old_E] += 1;
+                }
+
+                if (i % 1000 == 0)
+                {
+                    std::cout << "f: " << f << std::endl;
+                    if (isFlat(hist, h_tol))
                     {
-                        hist[E] = 0;
+                        f = std::sqrt(f);
+                        hist.clear();
+                        for (int E = E_min; E <= E_max; E += 1)
+                        {
+                            hist[E] = 0;
+                        }
                     }
                 }
             }
         }
+        return g;
     }
-    return g;
-}
-
-std::map<int, double> WangLandauIsing(IsingLattice lat, int MC_N)
-{
-    int L = lat.lattice.size();
-    std::pair<float, float> E_limit = lat.Energy_Limit();
-    float E_min = E_limit.first;
-    float E_max = E_limit.second;
-    float num_bins = -E_min + 1;
-
-    std::map<int, double> g; // Density of states g(E)
-    std::map<int, int> hist; // Histogram H(E)
-
-    for (int E = E_min; E <= E_max; E += 1)
-    { // Using increments of 2 for energy bins
-        g[E] = 1.0;
-        hist[E] = 0;
-    }
-
-    double f = std::exp(1.0); // Factor to multiply g(E) by
-    while (f - 1 > 1e-8)
-    {   
-        #pragma omp parallel for
-        for (int i = 0; i < MC_N; i++)
+    else
+    {
+        while (lnf > f_tol)
         {
-            //print f with 10 decimal places
-            // std::cout << "f: " << std::fixed << std::setprecision(10) << f << std::endl;
-            int x = rand() % L;
-            int y = rand() % L;
-            int s0 = lat.lattice[x][y];
-
-            float Old_E = lat.Ising_Energy();
-
-            int s1 = -s0;
-            lat.lattice[x][y] = s1;
-
-            float New_E = lat.Ising_Energy();
-
-            if (rand() / (double)RAND_MAX < std::min(1.0, g[Old_E] / g[New_E]))
+#pragma omp parallel for
+            for (int i = 0; i < MC_N; i++)
             {
-                g[New_E] *= f;
-                hist[New_E] += 1;
-            }
-            else
-            {
-                lat.lattice[x][y] = s0;
-                g[Old_E] *= f;
-                hist[Old_E] += 1;
-            }
-            if(i % 100 == 0)
-            {
-                if (isFlat(hist, f))
+                int x = rand() % L;
+                int y = rand() % L;
+                int s0 = lat.lattice[x][y];
+
+                float Old_E = lat.Potts_Energy();
+
+                int s1 = 1 + rand() % q;
+                lat.lattice[x][y] = s1;
+
+                float New_E = lat.Potts_Energy();
+
+                if (rand() / (double)RAND_MAX < std::min(1.0, std::exp(lng[Old_E] - lng[New_E])))
                 {
-                    f = std::sqrt(f);
-                    hist.clear();
-                    for (int E = E_min; E <= E_max; E += 1)
+                    lng[New_E] += lnf;
+                    hist[New_E] += 1;
+                }
+                else
+                {
+                    lat.lattice[x][y] = s0;
+                    lng[Old_E] += lnf;
+                    hist[Old_E] += 1;
+                }
+
+                if (i % 1000 == 0)
+                {
+                    std::cout << "lnf: " << lnf << std::endl;
+                    if (isFlat(hist, h_tol))
                     {
-                        hist[E] = 0;
+                        lnf = lnf / 3;
+                        hist.clear();
+                        for (int E = E_min; E <= E_max; E += 1)
+                        {
+                            hist[E] = 0;
+                        }
                     }
                 }
             }
         }
+        return lng;
     }
-    return g;
 }
