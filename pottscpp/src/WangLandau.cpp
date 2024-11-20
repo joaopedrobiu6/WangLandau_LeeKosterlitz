@@ -140,7 +140,7 @@ std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double 
                     std::cout << "lnf: " << lnf << std::endl;
                     if (isFlat(hist, h_tol))
                     {
-                        lnf = lnf / 3;
+                        lnf = lnf / 8;
                         hist.clear();
                         for (int E = E_min; E <= E_max; E += 1)
                         {
