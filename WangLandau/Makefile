@@ -5,6 +5,7 @@ BINDIR := bin
 LIBDIR := lib
 MAINDIR := main
 SRCDIR := src
+RESUL := results
 
 CXX := g++
 CXXFLAGS := -O3 -std=c++23 -I $(SRCDIR)
@@ -21,7 +22,7 @@ MAIN := $(patsubst %.cpp, $(BINDIR)/%.exe, $(notdir $(wildcard $(MAINDIR)/*.cpp)
 #######################################################################
 all: $(MAIN)
 
-$(BINDIR) $(LIBDIR):
+$(BINDIR) $(LIBDIR) $(RESUL):
 	mkdir -p $@
 
 $(LIBDIR)/libCompPhys.a: $(OBJS) | $(LIBDIR)

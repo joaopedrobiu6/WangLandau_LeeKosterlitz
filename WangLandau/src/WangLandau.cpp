@@ -28,33 +28,8 @@ bool isFlat(const std::map<int, int> &hist, double h_tol)
     return true;
 }
 
-std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double f_tol, double h_tol, bool NoLog, int sampleInterval, int f_factor,  std::string filename)
+void info_dump(std::string folder, int MC_N, int L, int q, double f_tol, double h_tol, bool NoLog, int sampleInterval, int f_factor)
 {
-    int L = lat.lattice.size();
-
-    std::cout << "Starting Wang-Landau simulation" << std::endl;
-    std::cout << "MC samples: " << MC_N << std::endl;
-    std::cout << "Lattice size: " << L << std::endl;
-    std::cout << "q: " << q << std::endl;
-    std::cout << "f tolerance: " << f_tol << std::endl;
-    std::cout << "Histogram tolerance: " << h_tol << std::endl;
-    if (NoLog)
-    {
-        std::cout << "Exp form" << std::endl;
-    }
-    else
-    {
-        std::cout << "Log form" << std::endl;
-    }
-    std::cout << "Sample Check Interval: " << sampleInterval << std::endl;
-    std::cout << "f update factor: " << f_factor << std::endl;
-
-    // create output folder if it doesn't exist with name equal to filename without extension and in result folder
-    std::string folder = "results/" + filename.substr(0, filename.find_last_of("."));
-    std::string command = "mkdir -p " + folder;
-    system(command.c_str());
-
-    // create info file in output folder with parameters
     std::ofstream info_file(folder + "/info.txt");
     info_file << "MC samples: " << MC_N << std::endl;
     info_file << "Lattice size: " << L << std::endl;
@@ -72,7 +47,45 @@ std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double 
     info_file << "Sample Check Interval: " << sampleInterval << std::endl;
     info_file << "f update factor: " << f_factor << std::endl;
     info_file.close();
-    
+}
+
+void info_print(int MC_N, int L, int q, double f_tol, double h_tol, bool NoLog, int sampleInterval, int f_factor)
+{
+    std::cout << "\n*******************************************" << std::endl;
+    std::cout << "\nStarting Wang-Landau simulation" << std::endl;
+    std::cout << "MC samples: " << MC_N << std::endl;
+    std::cout << "Lattice size: " << L << std::endl;
+    std::cout << "q: " << q << std::endl;
+    std::cout << "f tolerance: " << f_tol << std::endl;
+    std::cout << "Histogram tolerance: " << h_tol << std::endl;
+    if (NoLog)
+    {
+        std::cout << "Exp form" << std::endl;
+    }
+    else
+    {
+        std::cout << "Log form" << std::endl;
+    }
+    std::cout << "Sample Check Interval: " << sampleInterval << std::endl;
+    std::cout << "f update factor: " << f_factor << std::endl;
+    std::cout << "\n*******************************************\n"
+              << std::endl;
+}
+
+std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double f_tol, double h_tol, bool NoLog, int sampleInterval, int f_factor, std::string filename)
+{
+    int L = lat.lattice.size();
+
+    info_print(MC_N, L, q, f_tol, h_tol, NoLog, sampleInterval, f_factor);
+
+    // create output folder if it doesn't exist with name equal to filename without extension and in result folder
+    std::string folder = "results/" + filename.substr(0, filename.find_last_of("."));
+    std::string command = "mkdir -p " + folder;
+    system(command.c_str());
+
+    // create info file in output folder with parameters
+    info_dump(folder, MC_N, L, q, f_tol, h_tol, NoLog, sampleInterval, f_factor);
+
     srand(time(NULL));
     std::pair<float, float> E_limit = lat.Energy_Limit();
     float E_min = E_limit.first;
@@ -178,7 +191,7 @@ std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double 
 
                 if (i % sampleInterval == 0)
                 {
-                    std::cout << "lnf: " << lnf << std::endl;
+                    // std::cout << "lnf: " << lnf << std::endl;
                     if (isFlat(hist, h_tol))
                     {
                         lnf = lnf / f_factor;

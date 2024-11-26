@@ -14,4 +14,5 @@ std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double 
                                       double h_tol, bool NoLog = false, int sampleInterval = 1000, 
                                       int f_factor = 2,  std::string filename = "lng.txt");
 
-// std::map<int, double> WangLandauIsing(IsingLattice lat, int MC_N);
+void info_dump(std::string folder, int MC_N, int L, int q, double f_tol, double h_tol, bool NoLog, int sampleInterval, int f_factor);
+void info_print(int MC_N, int L, int q, double f_tol, double h_tol, bool NoLog, int sampleInterval, int f_factor);
