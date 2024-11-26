@@ -49,8 +49,8 @@ std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double 
     std::cout << "Sample Check Interval: " << sampleInterval << std::endl;
     std::cout << "f update factor: " << f_factor << std::endl;
 
-    // create output folder if it doesn't exist with name equal to filename without extension
-    std::string folder = filename.substr(0, filename.find_last_of("."));
+    // create output folder if it doesn't exist with name equal to filename without extension and in result folder
+    std::string folder = "results/" + filename.substr(0, filename.find_last_of("."));
     std::string command = "mkdir -p " + folder;
     system(command.c_str());
 
