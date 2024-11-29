@@ -1,6 +1,6 @@
-MC samples: 10000000
-Lattice size: 12
-q: 3
+MC samples: 100000000
+Lattice size: 8
+q: 5
 f tolerance: 1e-08
 Histogram tolerance: 0.8
 Log form
