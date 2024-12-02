@@ -4,7 +4,7 @@
 
 int main()
 {
-    int L = 12;
+    int L = 16;
     float J = 1.0;
     int q = 8;
     double f_tol = 1.0e-8, h_tol = 0.95;
