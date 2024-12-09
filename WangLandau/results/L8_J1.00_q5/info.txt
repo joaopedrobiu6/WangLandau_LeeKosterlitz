@@ -1,8 +1,0 @@
-MC samples: 100000000
-Lattice size: 8
-q: 5
-f tolerance: 1e-08
-Histogram tolerance: 0.8
-Log form
-Sample Check Interval: 10000
-f update factor: 2

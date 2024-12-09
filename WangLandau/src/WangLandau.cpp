@@ -177,7 +177,7 @@ std::map<int, double> WangLandauPotts(PottsLattice lat, int MC_N, int q, double 
 
                 float New_E = lat.Potts_Energy();
 
-                if (rand() / (double)RAND_MAX < std::min(1.0, std::exp(lng[Old_E] - lng[New_E])))
+                if (rand() / (double)RAND_MAX < std::exp(lng[Old_E] - lng[New_E])) // std::min(0.0, std::exp(lng[Old_E] - lng[New_E]))
                 {
                     lng[New_E] += lnf;
                     hist[New_E] += 1;
