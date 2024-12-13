@@ -7,8 +7,8 @@ The code of the project is strtuctured in the following way:
 - The folder `WangLandau/` is structured in the following manner:
 - `main/`: contains the main `.cpp` code to run the Wang-Landau simulations `FirstOrderPT.cpp`.
 - `src/`: contains the header (`.h`) and source files (`.cpp`) of the lattice objects and Wang-Landau simulations.
-- `lib/`: contains the library files `.a` of the project.
-- `bin/`: contains the executable files of the project.
+- `lib/`: contains the library files `.a` of the project. Created when running `make` in the `WangLandau/` folder.
+- `bin/`: contains the executable files of the project. Created when running `make` in the `WangLandau/` folder.
 - `results/`: contains the results of the simulations.
 - `LeeKosterlitz.ipynb`: Jupyter Notebook with the implementation of the Lee-Kosterlitz method to study phase transitions.
 
